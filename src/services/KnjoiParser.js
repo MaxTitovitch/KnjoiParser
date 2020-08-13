@@ -38,7 +38,7 @@ module.exports = class KnjoiParser {
 
   async parseBrandPages (page, pageQuantity) {
     // for (let i = 1; i <= pageQuantity; i++) {
-    for (let i = 1; i <= 2; i++) {
+    for (let i = 1; i <= 100; i++) {
       console.log(`The ${i}th page is parse...`);
       let link = `${this.initUrl}?page=${i}`;
       await page.goto(link);
@@ -59,8 +59,8 @@ module.exports = class KnjoiParser {
   }
 
   async parseOneBrandPage (links) {
-    for (let i = 0; i < 15; i++) {
-    // for (let i = 0; i < links.length; i++) {
+    // for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < links.length; i++) {
       let brandsPage = await this.createPage(this.browser, links[i]);
       await this.scrollPage(brandsPage);
       let brand = await this.parseOneBrand(brandsPage);
@@ -89,6 +89,10 @@ module.exports = class KnjoiParser {
       };
 
       try {
+        // review?
+        // strengths?
+        // ratings?
+        // faqs
         let statistics = [], scorecards = [], strengths = [], contacts = [], ratings = [], faqs = [];
         $('.pfeature.hidetablecell__700').toArray().forEach((element) => {
           let statistic = {};
@@ -139,7 +143,7 @@ module.exports = class KnjoiParser {
           });
         });
 
-        $('.module.ptext').eq(5).children('h3').toArray().forEach((element) => {
+        $('h2.fs25.mb30').parent().children('h3').toArray().forEach((element) => {
           faqs.push({
             name: $(element).text(),
             value: $(element).next().clone().children().remove().end().text().trim(),
