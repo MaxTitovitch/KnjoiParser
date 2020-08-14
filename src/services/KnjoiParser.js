@@ -38,8 +38,8 @@ module.exports = class KnjoiParser {
 
   async parseBrandPages (page, pageQuantity) {
     // for (let i = 1; i <= pageQuantity; i++) {
-    for (let i = 1; i <= 100; i++) {
-      console.log(`The ${i}th page is parse...`);
+    for (let i = 1; i <= 2; i++) {
+      console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`);
       let link = `${this.initUrl}?page=${i}`;
       await page.goto(link);
       let brandLinks = await this.getBrandLinks(page);
@@ -61,12 +61,16 @@ module.exports = class KnjoiParser {
   async parseOneBrandPage (links) {
     // for (let i = 0; i < 15; i++) {
     for (let i = 0; i < links.length; i++) {
-      let brandsPage = await this.createPage(this.browser, links[i]);
-      await this.scrollPage(brandsPage);
-      let brand = await this.parseOneBrand(brandsPage);
-      await brandsPage.close();
-      if(brand != null) {
-        this.brands.push(brand);
+      try {
+        let brandsPage = await this.createPage(this.browser, links[i]);
+        // await this.scrollPage(brandsPage);
+        let brand = await this.parseOneBrand(brandsPage);
+        await brandsPage.close();
+        if (brand != null) {
+          this.brands.push(brand);
+        }
+      } catch (e) {
+        continue;
       }
     }
   }
@@ -74,7 +78,7 @@ module.exports = class KnjoiParser {
   async parseOneBrand (page) {
     return page.evaluate(() => {
       String.prototype.replaceSpan = function() {
-        return this.split('<span class="bold">').join('<b>').split('</span">').join('</b>');
+        return this.split('<span class="bold">').join('<b>').split('</span>').join('</b>');
       };
       String.prototype.replaceAll = function(splits, to) {
         let str = this;
@@ -193,7 +197,9 @@ module.exports = class KnjoiParser {
   }
 
   async saveBrands (brands) {
+    console.log(`Data saving started: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`);
     this.brands = brands;
     this.saver.saveData(brands);
+    console.log(`Data has saved: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}!`);
   }
 }

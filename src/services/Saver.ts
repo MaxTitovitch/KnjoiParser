@@ -33,7 +33,7 @@ export class Saver {
             this.scorecardRepository = connection.getRepository(Scorecard);
             this.statisticRepository = connection.getRepository(Statistic);
             this.strengthRepository = connection.getRepository(Strength);
-            // await this.clearLastData(connection);
+            await this.clearLastData(connection);
             await this.startSaving(connection, brands);
             await connection.close();
         }).catch(error => console.log(error));
@@ -125,13 +125,13 @@ export class Saver {
 
     private async clearLastData(connection: Connection) {
         await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
-        await this.brandRepository.clear();
         await this.contactRepository.clear();
         await this.faqRepository.clear();
         await this.ratingRepository.clear();
         await this.scorecardRepository.clear();
         await this.statisticRepository.clear();
         await this.strengthRepository.clear();
+        await this.brandRepository.clear();
         await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
     }
 }
