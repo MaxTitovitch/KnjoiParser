@@ -63,7 +63,7 @@ module.exports = class KnjoiParser {
     for (let i = 0; i < links.length; i++) {
       try {
         let brandsPage = await this.createPage(this.browser, links[i]);
-        // await this.scrollPage(brandsPage);
+        await this.waitFor(1500);
         let brand = await this.parseOneBrand(brandsPage);
         await brandsPage.close();
         if (brand != null) {
