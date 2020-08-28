@@ -21,7 +21,24 @@ export class Saver {
 
 
     constructor() {
-        this.connection = createConnection()
+        this.connection = createConnection();
+        this.connection.then(async connection => {
+            this.brandRepository = connection.getRepository(Brand);
+            this.contactRepository = connection.getRepository(Contact);
+            this.faqRepository = connection.getRepository(Faq);
+            this.ratingRepository = connection.getRepository(Rating);
+            this.scorecardRepository = connection.getRepository(Scorecard);
+            this.statisticRepository = connection.getRepository(Statistic);
+            this.strengthRepository = connection.getRepository(Strength);
+            await this.clearLastData(connection);
+            // await connection.close();
+        }).catch(error => console.log(error));
+    }
+
+    public close () {
+        this.connection.then(async connection => {
+            await connection.close();
+        }).catch(error => console.log(error));
     }
 
     public saveData(brands: Brand[]): void {
@@ -33,9 +50,8 @@ export class Saver {
             this.scorecardRepository = connection.getRepository(Scorecard);
             this.statisticRepository = connection.getRepository(Statistic);
             this.strengthRepository = connection.getRepository(Strength);
-            await this.clearLastData(connection);
             await this.startSaving(connection, brands);
-            await connection.close();
+            // await connection.close();
         }).catch(error => console.log(error));
     }
 

@@ -37,15 +37,16 @@ module.exports = class KnjoiParser {
   }
 
   async parseBrandPages (page, pageQuantity) {
-    for (let i = 664; i <= pageQuantity; i++) {
-//     for (let i = 1; i <= 2; i++) {
+    for (let i = 1; i <= pageQuantity; i++) {
+    // for (let i = 1; i <= 15; i++) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`);
       let link = `${this.initUrl}?page=${i}`;
       await page.goto(link);
       let brandLinks = await this.getBrandLinks(page);
-      await this.parseOneBrandPage(brandLinks);
+      let brands = await this.parseOneBrandPage(brandLinks);
+      await this.saveBrands(brands);
     }
-    await this.saveBrands(this.brands);
+    await this.saver.close();
   }
 
   async getBrandLinks (page) {
@@ -59,20 +60,18 @@ module.exports = class KnjoiParser {
   }
 
   async parseOneBrandPage (links) {
-    // for (let i = 0; i < 15; i++) {
+    let brands = [];
+    // for (let i = 0; i < 3; i++) {
     for (let i = 0; i < links.length; i++) {
       try {
         let brandsPage = await this.createPage(this.browser, links[i]);
         await brandsPage.waitFor(1500);
         let brand = await this.parseOneBrand(brandsPage);
         await brandsPage.close();
-        if (brand != null) {
-          this.brands.push(brand);
-        }
-      } catch (e) {
-        continue;
-      }
+        if (brand != null) brands.push(brand);
+      } catch (e) {}
     }
+    return  brands;
   }
 
   async parseOneBrand (page) {
