@@ -7,7 +7,9 @@ import {Rating} from '../entity/Rating'
 import {Scorecard} from '../entity/Scorecard'
 import {Statistic} from '../entity/Statistic'
 import {Strength} from '../entity/Strength'
-import request from 'request';
+import "reflect-metadata";
+let  KnjoiParser = require('./KnjoiParser');
+const brandsLink = 'https://knoji.com/brand-directory/';
 
 export class Saver {
     private brandRepository: Repository<Brand>;
@@ -20,43 +22,33 @@ export class Saver {
     private connection: Promise<Connection>;
 
 
-    constructor() {
+    public startWork() {
         this.connection = createConnection();
         this.connection.then(async connection => {
-            this.brandRepository = connection.getRepository(Brand);
-            this.contactRepository = connection.getRepository(Contact);
-            this.faqRepository = connection.getRepository(Faq);
-            this.ratingRepository = connection.getRepository(Rating);
-            this.scorecardRepository = connection.getRepository(Scorecard);
-            this.statisticRepository = connection.getRepository(Statistic);
-            this.strengthRepository = connection.getRepository(Strength);
+            await this.prepareSaving(connection);
             await this.clearLastData(connection);
-            // await connection.close();
-        }).catch(error => console.log(error));
-    }
-
-    public close () {
-        this.connection.then(async connection => {
+            await this.saveData(connection);
             await connection.close();
         }).catch(error => console.log(error));
     }
 
-    public saveData(brands: Brand[]): void {
-        this.connection.then(async connection => {
-            this.brandRepository = connection.getRepository(Brand);
-            this.contactRepository = connection.getRepository(Contact);
-            this.faqRepository = connection.getRepository(Faq);
-            this.ratingRepository = connection.getRepository(Rating);
-            this.scorecardRepository = connection.getRepository(Scorecard);
-            this.statisticRepository = connection.getRepository(Statistic);
-            this.strengthRepository = connection.getRepository(Strength);
-            await this.startSaving(connection, brands);
-            // await connection.close();
-        }).catch(error => console.log(error));
+    private async saveData(connection) {
+        let parser = new KnjoiParser(brandsLink, this, connection);
+        await parser.parse();
+    }
+
+    private async prepareSaving(connection) {
+        this.brandRepository = connection.getRepository(Brand);
+        this.contactRepository = connection.getRepository(Contact);
+        this.faqRepository = connection.getRepository(Faq);
+        this.ratingRepository = connection.getRepository(Rating);
+        this.scorecardRepository = connection.getRepository(Scorecard);
+        this.statisticRepository = connection.getRepository(Statistic);
+        this.strengthRepository = connection.getRepository(Strength);
     }
 
 
-    private async startSaving(connection: Connection, brands: Brand[]) {
+    public async startSaving(connection: Connection, brands: Brand[]) {
         for (const brandObject of brands) {
             let brand = new Brand();
             brand.name = brandObject.name;

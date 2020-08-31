@@ -1,14 +1,14 @@
-let {Saver} = require('./Saver');
 
 let puppeteer = require('puppeteer')
 let fs = require('fs')
 
 
 module.exports = class KnjoiParser {
-  constructor (brandsLink) {
+  constructor (brandsLink, parentNode, connection) {
     this.initUrl = brandsLink;
     this.brands = [];
-    this.saver = new Saver();
+    this.parentNode = parentNode;
+    this.connection = connection;
     debugger;
   }
 
@@ -37,8 +37,8 @@ module.exports = class KnjoiParser {
   }
 
   async parseBrandPages (page, pageQuantity) {
+    // for (let i = 1; i <= 3; i++) {
     for (let i = 1; i <= pageQuantity; i++) {
-    // for (let i = 1; i <= 15; i++) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`);
       let link = `${this.initUrl}?page=${i}`;
       await page.goto(link);
@@ -46,7 +46,6 @@ module.exports = class KnjoiParser {
       let brands = await this.parseOneBrandPage(brandLinks);
       await this.saveBrands(brands);
     }
-    await this.saver.close();
   }
 
   async getBrandLinks (page) {
@@ -198,7 +197,7 @@ module.exports = class KnjoiParser {
   async saveBrands (brands) {
     console.log(`Data saving started: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`);
     this.brands = brands;
-    this.saver.saveData(brands);
+    await this.parentNode.startSaving(this.connection, brands);
     console.log(`Data has saved: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}!`);
   }
 }
