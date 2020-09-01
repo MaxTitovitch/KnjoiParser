@@ -23,6 +23,7 @@ module.exports = class KnjoiParser {
     await this.browser.close();
   }
 
+
   async startParsing (page) {
     await page.goto(this.initUrl);
     let pageQuantity = await this.getPageQuantity(page);
@@ -172,6 +173,66 @@ module.exports = class KnjoiParser {
       }
     })
   }
+
+
+  async parseAffiliatePrograms (links) {
+    this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] });
+    await this.startAffiliateParsing(links);
+    await this.browser.close();
+
+  }
+
+  async startAffiliateParsing (links) {
+    for (let i = 0; i < links.length; i++) {
+      let page = await this.createPage(this.browser, links[i][0]);
+      console.log(`Brands to parsing: ${i+1} of ${links.length}`);
+      let affiliate_program = await this.getProgramData(page, links[i][1]);
+      if(affiliate_program.amazon_link)
+        affiliate_program.amazon_link = await this.changeLink(page, affiliate_program.amazon_link);
+      await page.close();
+      await this.parentNode.startAffiliateSaving(this.connection, affiliate_program);
+    }
+  }
+
+  async getProgramData (page, brand) {
+    return page.evaluate((brand) => {
+      String.prototype.replaceSpan = function() {
+        return this.split('<span class="bold">').join('<b>').split('</span>').join('</b>');
+      };
+      return {
+        text: $('.module').find('.ptext').eq(0).text(),
+        rating: $('.fs13.grey9.fl.mt15').text().split(':')[1].split('-')[0].trim(),
+        description_first: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(0).html().replaceSpan(),
+        description_second: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(0).html().replaceSpan(),
+        update_text: $('.ptext.answer__text.bluelinks').children('p').eq(0).html().replaceSpan(),
+        amazon_link: $('.ptext.answer__text.bluelinks').find('span[name]').eq(0).attr('name'),
+        amazon_rating: $('.bgfa.gr8.bb.pd10r.italic.fs12').eq(0).text().split(':')[1].trim(),
+        program_values: $('.ptext.answer__text.bluelinks>.fr-view>ul>li').toArray().map(function(el) {
+          return {
+            program_category: $(el).clone().children().remove().end().text().split(':')[0].trim(),
+            link: $(el).find('a').eq(0).attr('href') || location.href,
+            value: $(el).find('span.bold, strong').text().trim()
+          };
+        }),
+        brand
+      }
+    }, brand);
+  }
+
+  async changeLink (page, link) {
+    await page.goto(link);
+    await page.waitFor(1000);
+    return await page.url()
+  }
+
+
+
+
+
+
+
+
+
 
 
 

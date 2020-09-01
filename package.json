@@ -16,6 +16,7 @@
    },
    "scripts": {
       "start": "ts-node src/index.js",
+      "start:affiliate": "ts-node src/affiliate-index.js",
       "type:run": "ts-node ./node_modules/typeorm/cli.js migrations:run"
    }
 }

@@ -1,10 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm'
 import { Statistic } from './Statistic'
 import { Scorecard } from './Scorecard'
 import { Strength } from './Strength'
 import { Contact } from './Contact'
 import { Rating } from './Rating'
 import { Faq } from './Faq'
+import { AffiliateProgram } from './AffiliateProgram'
 
 @Entity({name: 'brands'})
 export class Brand {
@@ -59,5 +60,8 @@ export class Brand {
 
   @OneToMany(type => Faq, faq => faq.brand)
   faqs: Faq[];
+
+  @OneToOne(type => AffiliateProgram, affiliate_program => affiliate_program.brand)
+  affiliate_program: AffiliateProgram;
 }
 

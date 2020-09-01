@@ -8,6 +8,9 @@ import {Scorecard} from '../entity/Scorecard'
 import {Statistic} from '../entity/Statistic'
 import {Strength} from '../entity/Strength'
 import "reflect-metadata";
+import {AffiliateProgram} from "../entity/AffiliateProgram";
+import {ProgramCategory} from "../entity/ProgramCategory";
+import {ProgramValue} from "../entity/ProgramValue";
 let  KnjoiParser = require('./KnjoiParser');
 const brandsLink = 'https://knoji.com/brand-directory/';
 
@@ -19,6 +22,11 @@ export class Saver {
     private scorecardRepository: Repository<Scorecard>;
     private statisticRepository: Repository<Statistic>;
     private strengthRepository: Repository<Strength>;
+
+    private affiliateProgramRepository: Repository<AffiliateProgram>;
+    private programCategoryRepository: Repository<ProgramCategory>;
+    private programValueRepository: Repository<ProgramValue>;
+
     private connection: Promise<Connection>;
 
 
@@ -141,5 +149,81 @@ export class Saver {
         await this.strengthRepository.clear();
         await this.brandRepository.clear();
         await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
+    }
+
+    public startAffiliateWork() {
+        this.connection = createConnection();
+        this.connection.then(async connection => {
+            await this.prepareAffiliateSaving(connection);
+            await this.clearAffiliateLastData(connection);
+            await this.saveAffiliateData(connection);
+            await connection.close();
+        }).catch(error => console.log(error));
+    }
+
+
+    private async saveAffiliateData(connection) {
+        let parser = new KnjoiParser(null, this, connection);
+        let links = await this.prepareAffiliateLinks(connection);
+        await parser.parseAffiliatePrograms(links);
+    }
+
+
+    private async prepareAffiliateLinks(connection) {
+        let faqItems = await this.faqRepository.query("SELECT * FROM `faqs` where `name` LIKE '%affiliate%' AND `value` LIKE 'Yes%'");
+        return Object.values(faqItems).map(function (faq) {
+            return [faq['link'], faq['brand_id']];
+        });
+    }
+
+    private async prepareAffiliateSaving(connection) {
+        this.faqRepository = connection.getRepository(Faq);
+        this.affiliateProgramRepository = connection.getRepository(AffiliateProgram);
+        this.programCategoryRepository = connection.getRepository(ProgramCategory);
+        this.programValueRepository = connection.getRepository(ProgramValue);
+    }
+
+    private async clearAffiliateLastData(connection: Connection) {
+        await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
+        await this.affiliateProgramRepository.clear();
+        await this.programCategoryRepository.clear();
+        await this.programValueRepository.clear();
+        await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
+    }
+
+    public async startAffiliateSaving(connection: Connection, program: AffiliateProgram) {
+        let affiliateProgram = new AffiliateProgram();
+        affiliateProgram.text = program.text;
+        affiliateProgram.rating = program.rating;
+        affiliateProgram.description_first = program.description_first;
+        affiliateProgram.description_second = program.description_second;
+        affiliateProgram.update_text = program.update_text;
+        affiliateProgram.amazon_link = program.amazon_link;
+        affiliateProgram.amazon_rating = program.amazon_rating;
+        affiliateProgram['brand'] = program.brand;
+        affiliateProgram = await this.affiliateProgramRepository.save(affiliateProgram);
+        await this.saveProgramValues(affiliateProgram, program.program_values);
+    }
+
+    private async saveProgramValues(affiliateProgram: AffiliateProgram, program_values: ProgramValue[]) {
+        for (const programObject of program_values) {
+            let category = await this.findOrCreateCategory(programObject.program_category);
+            let programValue = new ProgramValue();
+            programValue.value = programObject.value;
+            programValue.link = programObject.link;
+            programValue.affiliate_program = affiliateProgram;
+            programValue.program_category = category;
+            await this.programValueRepository.save(programValue);
+        }
+    }
+
+    private async findOrCreateCategory(programCategory) {
+        let category = await this.programCategoryRepository.findOne({name: programCategory});
+        if (!category) {
+            category = new ProgramCategory();
+            category.name = programCategory;
+            category = await this.programCategoryRepository.save(category);
+        }
+        return category;
     }
 }
