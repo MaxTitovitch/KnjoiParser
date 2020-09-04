@@ -184,13 +184,15 @@ module.exports = class KnjoiParser {
 
   async startAffiliateParsing (links) {
     for (let i = 0; i < links.length; i++) {
-      let page = await this.createPage(this.browser, links[i][0]);
-      console.log(`Brands to parsing: ${i+1} of ${links.length}`);
-      let affiliate_program = await this.getProgramData(page, links[i][1]);
-      if(affiliate_program.amazon_link)
-        affiliate_program.amazon_link = await this.changeLink(page, affiliate_program.amazon_link);
-      await page.close();
-      await this.parentNode.startAffiliateSaving(this.connection, affiliate_program);
+      try {
+        let page = await this.createPage(this.browser, links[i][0]);
+        console.log(`Brands to parsing: ${i + 1} of ${links.length}`);
+        let affiliate_program = await this.getProgramData(page, links[i][1]);
+        if (affiliate_program.amazon_link)
+          affiliate_program.amazon_link = await this.changeLink(page, affiliate_program.amazon_link);
+        await page.close();
+        await this.parentNode.startAffiliateSaving(this.connection, affiliate_program);
+      } catch (e) {}
     }
   }
 
@@ -203,7 +205,7 @@ module.exports = class KnjoiParser {
         text: $('.module').find('.ptext').eq(0).text(),
         rating: $('.fs13.grey9.fl.mt15').text().split(':')[1].split('-')[0].trim(),
         description_first: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(0).html().replaceSpan(),
-        description_second: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(0).html().replaceSpan(),
+        description_second: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(1).html().replaceSpan(),
         update_text: $('.ptext.answer__text.bluelinks').children('p').eq(0).html().replaceSpan(),
         amazon_link: $('.ptext.answer__text.bluelinks').find('span[name]').eq(0).attr('name'),
         amazon_rating: $('.bgfa.gr8.bb.pd10r.italic.fs12').eq(0).text().split(':')[1].trim(),
