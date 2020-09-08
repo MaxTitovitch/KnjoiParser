@@ -61,8 +61,8 @@ module.exports = class KnjoiParser {
 
   async parseOneBrandPage (links) {
     let brands = [];
-    for (let i = 0; i < 3; i++) {
-    // for (let i = 0; i < links.length; i++) {
+    // for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < links.length; i++) {
       try {
         let brandsPage = await this.createPage(this.browser, links[i]);
         await brandsPage.waitFor(1500);
