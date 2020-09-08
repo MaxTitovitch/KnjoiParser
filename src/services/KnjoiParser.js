@@ -38,7 +38,7 @@ module.exports = class KnjoiParser {
   }
 
   async parseBrandPages (page, pageQuantity) {
-    for (let i = 481; i <= pageQuantity; i++) {
+    for (let i = 482; i <= pageQuantity; i++) {
     // for (let i = 1; i <= pageQuantity; i++) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`);
       let link = `${this.initUrl}?page=${i}`;
@@ -61,8 +61,8 @@ module.exports = class KnjoiParser {
 
   async parseOneBrandPage (links) {
     let brands = [];
-    // for (let i = 0; i < 3; i++) {
-    for (let i = 0; i < links.length; i++) {
+    for (let i = 0; i < 3; i++) {
+    // for (let i = 0; i < links.length; i++) {
       try {
         let brandsPage = await this.createPage(this.browser, links[i]);
         await brandsPage.waitFor(1500);
