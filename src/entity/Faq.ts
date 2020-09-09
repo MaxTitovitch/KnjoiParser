@@ -10,7 +10,7 @@ export class Faq {
   @Column({ length: 255 })
   name: string;
 
-  @Column({ length: 255 })
+  @Column('text')
   value: string;
 
   @Column('text')
