@@ -170,7 +170,7 @@ export class Saver {
 
 
     private async prepareAffiliateLinks(connection) {
-        let faqItems = await this.faqRepository.query("SELECT * FROM `faqs` where `name` LIKE '%affiliate%' AND `value` LIKE 'Yes%'");
+        let faqItems = await this.faqRepository.query("SELECT * FROM `faqs` where `name` LIKE '%affiliate%' AND `value` NOT LIKE 'Yes%'");
         return Object.values(faqItems).map(function (faq) {
             return [faq['link'], faq['brand_id']];
         });
