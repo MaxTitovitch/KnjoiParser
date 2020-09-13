@@ -155,7 +155,7 @@ export class Saver {
         this.connection = createConnection();
         this.connection.then(async connection => {
             await this.prepareAffiliateSaving(connection);
-            await this.clearAffiliateLastData(connection);
+            // await this.clearAffiliateLastData(connection);
             await this.saveAffiliateData(connection);
             await connection.close();
         }).catch(error => console.log(error));
