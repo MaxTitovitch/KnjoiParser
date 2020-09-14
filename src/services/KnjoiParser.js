@@ -175,6 +175,11 @@ module.exports = class KnjoiParser {
   }
 
 
+
+
+
+
+
   async parseAffiliatePrograms (links) {
     this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] });
     await this.startAffiliateParsing(links);
@@ -183,7 +188,7 @@ module.exports = class KnjoiParser {
   }
 
   async startAffiliateParsing (links) {
-    for (let i = 0; i < links.length; i++) {
+    for (let i = 7710; i < links.length; i++) {
       try {
         let page = await this.createPage(this.browser, links[i][0]);
         console.log(`Brands to parsing: ${i + 1} of ${links.length}`);
