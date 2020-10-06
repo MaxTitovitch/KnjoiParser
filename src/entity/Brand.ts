@@ -13,7 +13,7 @@ export class Brand {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
+  @Column('text')
   name: string;
 
   @Column('text')

@@ -41,7 +41,10 @@ export class Saver {
     }
 
     private async saveData(connection) {
-        let parser = new KnjoiParser(brandsLink, this, connection);
+        let names = (await this.brandRepository.find({})).map(function (item, i, arr) {
+            return item.name
+        });
+        let parser = new KnjoiParser(brandsLink, this, connection, names);
         await parser.parse();
     }
 
@@ -56,9 +59,10 @@ export class Saver {
     }
 
 
-    public async startSaving(connection: Connection, brands: Brand[]) {
+    public async startSaving(connection: Connection, brands: Brand[], names) {
         for (const brandObject of brands) {
             let brand = new Brand();
+            names.push(brandObject.name);
             brand.name = brandObject.name;
             brand.link = brandObject.link;
             brand.rated = brandObject.rated;

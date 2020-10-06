@@ -7,10 +7,10 @@ export class Statistic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
+  @Column('text')
   name: string;
 
-  @Column({ length: 255 })
+  @Column('text')
   value: string;
 
   @Column('text')

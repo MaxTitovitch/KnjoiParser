@@ -7,10 +7,10 @@ export class Scorecard {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
+  @Column('text')
   name: string;
 
-  @Column({ length: 255 })
+  @Column('text')
   value: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
