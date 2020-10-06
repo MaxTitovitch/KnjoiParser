@@ -1,15 +1,6 @@
 let puppeteer = require('puppeteer')
 let fs = require('fs')
 
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'user-service' },
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-  ],
-})
-
 module.exports = class KnjoiParser {
   /**
    *
