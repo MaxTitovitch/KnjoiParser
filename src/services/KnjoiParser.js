@@ -57,7 +57,7 @@ module.exports = class KnjoiParser {
 
   async parseBrandPages (page, pageQuantity) {
     // for (let i = 1; i <= 17; i++) {
-    for (let i = 1; i <= pageQuantity; i++) {
+    for (let i = pageQuantity; i >= 1; i--) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`)
       let link = `${this.initUrl}?page=${i}`
       await page.goto(link)
@@ -110,8 +110,8 @@ module.exports = class KnjoiParser {
         return this[this.length - 1]
       }
 
-      let statistics = [], scorecards = [], strengths = [], contacts = [], ratings = [], faqs = [], rated = '',
-        reviews = '', review = ''
+      let statistics = [], scorecards = [], strengths = [], contacts = [], ratings = [], faqs = [], rated = '', description = '',
+        reviews = '', review = '', about = '';
       $('.pfeature.hidetablecell__700').toArray().forEach((element) => {
         let statistic = {}
         statistic.name = $(element).find('.pfeature__title').text()
@@ -180,15 +180,29 @@ module.exports = class KnjoiParser {
       try {
         review = `${$('.container300left__main>div').eq(1).find('p').eq(0).html().replaceSpan()} ${$('.container300left__main>div').eq(1).find('p').eq(2).html().replaceSpan()}`
       } catch (e) {
-        review = $('.container300left__main>div').eq(1).find('p').eq(0).html().replaceSpan()
+        try {
+          review = $('.container300left__main>div').eq(1).find('p').eq(0).html().replaceSpan()
+        } catch (e) {
+          review = ''
+        }
+      }
+
+      try {
+        description = $('h1').parent().parent().children('.bluelinks').html().replaceSpan()
+      } catch (e) {
+        description = ''
+      }
+
+      try {
+        about = $('.module>.fs13.ptext').html().replaceSpan()
+      } catch (e) {
+        about = ''
       }
 
       return {
         'name': $('h1').text().replaceAll([' Review'], ''),
         'link': $('.tacenter .href.gra').text(),
-        rated, reviews, review,
-        'description': $('h1').parent().parent().children('.bluelinks').html().replaceSpan(),
-        'about': $('.module>.fs13.ptext').html().replaceSpan(),
+        rated, reviews, review, description, about,
         'slug': $('.merchantpage__logo').find('img').attr('src'),
         statistics, scorecards, strengths, contacts, ratings, faqs
       }
