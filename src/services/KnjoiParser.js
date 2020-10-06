@@ -35,7 +35,8 @@ module.exports = class KnjoiParser {
    *
    */
   async parse () {
-    this.browser = await puppeteer.launch({ headless: false, args: ['--start-maximized'] })
+    this.browser = await puppeteer.launch({ headless: true})
+    // this.browser = await puppeteer.launch({ headless: false, args: ['--start-maximized'] })
     let page = await this.createPage(this.browser, this.initUrl)
     await this.startParsing(page)
     await this.browser.close()
@@ -207,7 +208,7 @@ module.exports = class KnjoiParser {
    *
    */
   async parseAffiliatePrograms (links) {
-    this.browser = await puppeteer.launch()
+    this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] })
     // this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] })
     await this.startAffiliateParsing(links)
     await this.browser.close()
