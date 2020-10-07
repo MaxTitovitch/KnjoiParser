@@ -13,6 +13,7 @@ import {ProgramCategory} from "../entity/ProgramCategory";
 import {ProgramValue} from "../entity/ProgramValue";
 let  KnjoiParser = require('./KnjoiParser');
 const brandsLink = 'https://knoji.com/brand-directory/';
+let fs = require('fs');
 
 export class Saver {
     private brandRepository: Repository<Brand>;
@@ -61,23 +62,27 @@ export class Saver {
 
     public async startSaving(connection: Connection, brands: Brand[], names) {
         for (const brandObject of brands) {
-            let brand = new Brand();
-            names.push(brandObject.name);
-            brand.name = brandObject.name;
-            brand.link = brandObject.link;
-            brand.rated = brandObject.rated;
-            brand.reviews = brandObject.reviews;
-            brand.description = brandObject.description;
-            brand.about = brandObject.about;
-            brand.review = brandObject.review;
-            brand.slug = brandObject.slug;
-            await this.brandRepository.save(brand);
-            await this.saveStatistics(brand, brandObject.statistics);
-            await this.saveScorecards(brand, brandObject.scorecards);
-            await this.saveStrengths(brand, brandObject.strengths);
-            await this.saveContacts(brand, brandObject.contacts);
-            await this.saveRatings(brand, brandObject.ratings);
-            await this.saveFaqs(brand, brandObject.faqs);
+            try {
+                let brand = new Brand();
+                names.push(brandObject.name);
+                brand.name = brandObject.name;
+                brand.link = brandObject.link;
+                brand.rated = brandObject.rated;
+                brand.reviews = brandObject.reviews;
+                brand.description = brandObject.description;
+                brand.about = brandObject.about;
+                brand.review = brandObject.review;
+                brand.slug = brandObject.slug;
+                await this.brandRepository.save(brand);
+                await this.saveStatistics(brand, brandObject.statistics);
+                await this.saveScorecards(brand, brandObject.scorecards);
+                await this.saveStrengths(brand, brandObject.strengths);
+                await this.saveContacts(brand, brandObject.contacts);
+                await this.saveRatings(brand, brandObject.ratings);
+                await this.saveFaqs(brand, brandObject.faqs);
+            } catch (e) {
+                fs.appendFileSync('/errors.txt', JSON.stringify(brandObject))
+            }
         }
     }
 
