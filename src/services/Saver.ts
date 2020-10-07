@@ -35,7 +35,7 @@ export class Saver {
         this.connection = createConnection();
         this.connection.then(async connection => {
             await this.prepareSaving(connection);
-            await this.clearLastData(connection);
+            // await this.clearLastData(connection);
             await this.saveData(connection);
             await connection.close();
         }).catch(error => console.log(error));
