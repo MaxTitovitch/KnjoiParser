@@ -57,7 +57,7 @@ module.exports = class KnjoiParser {
 
   async parseBrandPages (page, pageQuantity) {
     // for (let i = 1; i <= 17; i++) {
-    for (let i = 33; i <= pageQuantity; i++) {
+    for (let i = 77; i <= pageQuantity; i++) {
     // for (let i = pageQuantity; i >= 1; i--) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`)
       let link = `${this.initUrl}?page=${i}`
