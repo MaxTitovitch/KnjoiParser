@@ -81,7 +81,7 @@ export class Saver {
                 await this.saveRatings(brand, brandObject.ratings);
                 await this.saveFaqs(brand, brandObject.faqs);
             } catch (e) {
-                fs.appendFileSync('/errors.txt', JSON.stringify(brandObject))
+                fs.appendFileSync(__dirname + '/errors.txt', JSON.stringify(brandObject))
             }
         }
     }
