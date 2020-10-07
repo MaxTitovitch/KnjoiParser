@@ -57,7 +57,7 @@ module.exports = class KnjoiParser {
 
   async parseBrandPages (page, pageQuantity) {
     // for (let i = 1; i <= 17; i++) {
-    for (let i = 77; i <= pageQuantity; i++) {
+    for (let i = 88; i <= pageQuantity; i++) {
     // for (let i = pageQuantity; i >= 1; i--) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`)
       let link = `${this.initUrl}?page=${i}`
@@ -84,12 +84,16 @@ module.exports = class KnjoiParser {
   async parseOneBrandPage (links) {
     let brands = []
     // for (let i = 5; i < 7; i++) {
-      for (let i = 0; i < links.length; i++) {
-      let brandsPage = await this.createPage(this.browser, links[i])
-      await brandsPage.waitFor(1500)
-      let brand = await this.parseOneBrand(brandsPage)
-      await brandsPage.close()
-      if (brand != null) brands.push(brand)
+    for (let i = 0; i < links.length; i++) {
+      try {
+        let brandsPage = await this.createPage(this.browser, links[i])
+        await brandsPage.waitFor(1500)
+        let brand = await this.parseOneBrand(brandsPage)
+        await brandsPage.close()
+        if (brand != null) brands.push(brand)
+      } catch (e) {
+        fs.appendFileSync(__dirname + '/errors1.txt', JSON.stringify(links[i]))
+      }
     }
     return brands
   }
