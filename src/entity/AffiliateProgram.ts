@@ -39,7 +39,7 @@ export class AffiliateProgram {
     @JoinColumn({name: 'brand_id'})
     brand: Brand;
 
-    @OneToMany(type => ProgramValue, program_value => program_value.affiliate_program)
+    @OneToMany(type => ProgramValue, program_value => program_value.affiliate_program, {onDelete: "CASCADE", onUpdate: "CASCADE"})
     program_values: ProgramValue[];
 }
 
