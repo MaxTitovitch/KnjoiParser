@@ -35,8 +35,8 @@ module.exports = class KnjoiParser {
    *
    */
   async parse () {
-    // this.browser = await puppeteer.launch({ headless: true})
-    this.browser = await puppeteer.launch({ headless: false, args: ['--start-maximized'] })
+    this.browser = await puppeteer.launch({ headless: true})
+    // this.browser = await puppeteer.launch({ headless: false, args: ['--start-maximized'] })
     let page = await this.createPage(this.browser, this.initUrl)
     await this.startParsing(page)
     await this.browser.close()
