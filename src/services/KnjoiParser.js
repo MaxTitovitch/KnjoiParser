@@ -23,7 +23,7 @@ module.exports = class KnjoiParser {
   async createPage (browser, url) {
     const page = await browser.newPage()
     page.setDefaultNavigationTimeout(0)
-    await page.setViewport({ width: 1920, height: 926 })
+    // await page.setViewport({ width: 1920, height: 926 })
     await page.goto(url)
 
     return page
