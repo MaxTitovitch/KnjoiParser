@@ -1,5 +1,9 @@
-let puppeteer = require('puppeteer')
+// let puppeteer = require('puppeteer')
 let fs = require('fs')
+
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
 
 module.exports = class KnjoiParser {
   /**
@@ -227,8 +231,8 @@ module.exports = class KnjoiParser {
    *
    */
   async parseAffiliatePrograms (links) {
-    this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] })
     // this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] })
+    this.browser = await puppeteer.launch({ headless: true, args: ['--start-maximized'] })
     await this.startAffiliateParsing(links)
     await this.browser.close()
 
