@@ -175,11 +175,12 @@ export class Saver {
         let parser = new KnjoiParser(null, this, connection);
         let links = await this.prepareAffiliateLinks(connection);
         await parser.parseAffiliatePrograms(links);
+        // console.log(links.length);
     }
 
 
     private async prepareAffiliateLinks(connection) {
-        let faqItems = await this.faqRepository.query("SELECT * FROM `faqs` where `name` LIKE '%affiliate%' AND `value` NOT LIKE 'Yes%'");
+        let faqItems = await this.faqRepository.query("SELECT * FROM `faqs` where `name` LIKE '%affiliate%'");
         return Object.values(faqItems).map(function (faq) {
             return [faq['link'], faq['brand_id']];
         });

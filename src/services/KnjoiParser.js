@@ -1,5 +1,8 @@
-let puppeteer = require('puppeteer')
+// let puppeteer = require('puppeteer')
 let fs = require('fs')
+const puppeteer = require('puppeteer-extra')
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
 
 module.exports = class KnjoiParser {
   /**
@@ -58,7 +61,7 @@ module.exports = class KnjoiParser {
   async parseBrandPages (page, pageQuantity) {
     // for (let i = 1; i <= 17; i++) {
     // for (let i = 1172; i >= 1; i--) {
-    for (let i = 282; i <= pageQuantity; i++) {
+    for (let i = 727; i <= 950; i++) {
       console.log(`The ${i}th page is parse: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}...`)
       let link = `${this.initUrl}?page=${i}`
       await page.goto(link)
@@ -235,16 +238,18 @@ module.exports = class KnjoiParser {
   }
 
   async startAffiliateParsing (links) {
-    for (let i = 1; i < links.length; i++) {
+    for (let i = 62887; i < links.length; i++) {
       try {
         let page = await this.createPage(this.browser, links[i][0])
-        console.log(`Brands to parsing: ${i + 1} of ${links.length}`)
+        console.log(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}. Programs to parsing: ${i} of ${links.length}`)
         let affiliate_program = await this.getProgramData(page, links[i][1])
         if (affiliate_program.amazon_link)
           affiliate_program.amazon_link = await this.changeLink(page, affiliate_program.amazon_link)
         await page.close()
         await this.parentNode.startAffiliateSaving(this.connection, affiliate_program)
-      } catch (e) {}
+      } catch (e) {
+        fs.appendFileSync(__dirname + '/err.txt', JSON.stringify(links[i]) + '\r\n')
+      }
     }
   }
 
@@ -253,14 +258,41 @@ module.exports = class KnjoiParser {
       String.prototype.replaceSpan = function () {
         return this.split('<span class="bold">').join('<b>').split('</span>').join('</b>')
       }
+
+      let secondText = $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(1).html(), updateId = 0;
+      if(!secondText){
+        updateId++;
+        secondText = $('.ptext.answer__text.bluelinks').children('p').eq(0).html();
+        if(!secondText){
+          secondText = '';
+        } else {
+          secondText = secondText.replaceSpan();
+        }
+      } else {
+        secondText = secondText.replaceSpan();
+      }
+
+      let amazon = {};
+      if($('.ptext.answer__text>.mb20').length > 0) {
+        let rating = $('.bgfa.gr8.bb.pd10r.italic.fs12').eq(0).text().split(':')[1];
+        amazon = {
+          amazon_link: $('.ptext.answer__text.bluelinks').find('span[name]').eq(0).attr('name'),
+          amazon_rating: rating ? rating.trim() : 0
+        };
+      } else {
+        amazon = {
+          amazon_link: '',
+          amazon_rating: 0
+        };
+      }
       return {
         text: $('.module').find('.ptext').eq(0).text(),
         rating: $('.fs13.grey9.fl.mt15').text().split(':')[1].split('-')[0].trim(),
         description_first: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(0).html().replaceSpan(),
-        description_second: $('.ptext.answer__text.bluelinks span.fr-view').children('p').eq(1).html().replaceSpan(),
-        update_text: $('.ptext.answer__text.bluelinks').children('p').eq(0).html().replaceSpan(),
-        amazon_link: $('.ptext.answer__text.bluelinks').find('span[name]').eq(0).attr('name'),
-        amazon_rating: $('.bgfa.gr8.bb.pd10r.italic.fs12').eq(0).text().split(':')[1].trim(),
+        description_second: secondText,
+        update_text: $('.ptext.answer__text.bluelinks').children('p').eq(updateId).html().replaceSpan(),
+        amazon_link: amazon.amazon_link,
+        amazon_rating: amazon.amazon_rating,
         program_values: $('.ptext.answer__text.bluelinks>.fr-view>ul>li').toArray().map(function (el) {
           return {
             program_category: $(el).clone().children().remove().end().text().split(':')[0].trim(),
